@@ -42,7 +42,7 @@ def nary_to_int(nary):
         return 0
     head = nary[0].is_valid()
     tail = nary[1:]
-    return head.number + head.cardinal*nary_to_int(tail)
+    return head.number + head.cardinal * nary_to_int(tail)
 
 def int_to_nary(num, cardinals):
     """
@@ -155,7 +155,7 @@ def create_q_matrix(transition_matrix):
 
 def I_Q_inv_e(q, solver):
     size = q.shape[0]
-    return solver(np.eye(size) - q, np.ones([size]))
+    return solver(scipy.sparse.eye(size) - q, np.ones([size]))
 
 def exact_expectation(transition_matrix, solver=np.linalg.solve):
     q_matrix = transition_matrix[:-1, :-1]
