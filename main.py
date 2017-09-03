@@ -14,6 +14,7 @@
 
 import logging
 import os
+import sys
 
 from flask import Flask
 from flask import request
@@ -22,10 +23,9 @@ from manage_io import ret_val
 
 app = Flask(__name__)
 
-
-# [START scipy]
 @app.route('/', methods = ['get','post'])
 def main():
+    print(str(request.json), file=sys.stdout)
     return ret_val(request.json)
 
 
@@ -37,6 +37,12 @@ def server_error(e):
     See logs for full stacktrace.
     """.format(e), 500
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'POST')
+    return response
 
 if __name__ == '__main__':
     # This is used when running locally. Gunicorn is used to run the

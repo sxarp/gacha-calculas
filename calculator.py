@@ -5,9 +5,16 @@ import scipy.sparse
 import scipy as sp
 from functools import reduce
 import typing
+import sys
+
+def debug(obj):
+    print(str(obj), file=sys.stdout)
 
 def single_lottery(json):
-    item_categories = create_categories([(3, 0.2), (4, 0.1)])
+    item_categories = json_to_categories(json)
+    debug(item_categories)
+    item_categories = normalize_category(item_categories)
+    debug(item_categories)
     return calculate_exact_expectation(item_categories)
 
 Nary = typing.NamedTuple('Nary', (('number', int), ('cardinal', int)))
@@ -85,6 +92,14 @@ def total_of_item_category(item_categories):
     """
     return sum(map(to_prob, item_categories))
 
+def json_to_categories(json):
+    return list(map(lambda z: ItemCategory(int(z['number']), float(z['probability'])), json))
+
+def normalize_category(item_categories):
+    debug(item_categories)
+    total = total_of_item_category(item_categories)
+    return list(map(lambda z: ItemCategory(z.number, z.probability/total), item_categories))
+
 def size_of_matrix(item_categories):
     """
     >>> size_of_matrix(list(map(lambda z: ItemCategory(z[0], z[1]), [(3, 0.2), (4, 0.1)])))
@@ -122,7 +137,7 @@ def prob_of_duplication(nary):
     return 1.0 - prob_of_new_item(nary)
 
 def iterator_over_state_space(cardinal_list):
-    size = reduce(lambda u, v: u*v, cardinal_list)
+    size = reduce(lambda u, v: u * v, cardinal_list)
     for i in range(size):
         yield int_to_nary(i, cardinal_list)
     
