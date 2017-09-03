@@ -127,7 +127,7 @@ def iterator_over_state_space(cardinal_list):
         yield int_to_nary(i, cardinal_list)
     
 def item_categories_to_transition_matrix(item_categories):
-    assert total_of_item_category(item_categories) == 1.0
+    assert round(total_of_item_category(item_categories), 6) == 1.0
     
     size = size_of_matrix(item_categories)
     cardinal_list = list(map(lambda z: z.number + 1, item_categories))
@@ -163,7 +163,7 @@ def exact_expectation(transition_matrix, solver=np.linalg.solve):
 
 def create_categories(item_category_seed):
     item_categories = list(map(lambda z : ItemCategory(z[0], z[1]), item_category_seed))
-    assert total_of_item_category(item_categories) == 1.0
+    assert round(total_of_item_category(item_categories), 6) == 1.0
     return item_categories
 
 def category_to_probability(item_category):
