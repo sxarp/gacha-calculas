@@ -1,4 +1,4 @@
-# SciPy on App Engine Flexible
-
-This sample demonstrates how to use SciPy to resize an image on App Engine Flexible.
-
+# コンプガチャに必要な回数の期待値を計算
+- Google App Engineを使用
+- 言語はPython3
+- 計算方法/アルゴリズムはcalculator.pyを参照
