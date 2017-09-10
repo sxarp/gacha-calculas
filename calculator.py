@@ -1,6 +1,4 @@
-import numpy
 import numpy as np
-import numpy.linalg
 import scipy.sparse
 import scipy as sp
 from functools import reduce
@@ -61,7 +59,7 @@ def int_to_nary(num, cardinals):
     Traceback (most recent call last):
      ...
     ValueError: num is too large to code!
-    """    
+    """
     if cardinals == []:
         if num == 0:
             return []
@@ -111,7 +109,7 @@ def size_of_matrix(item_categories):
         head = item_categories[0]
         tail = item_categories[1:]
         return (head.number + 1) * size_of_matrix(tail)
-    
+
 def prob_of_new_item(nary):
     """
     >>> prob_of_new_item(Nary(2, 3))
@@ -140,33 +138,31 @@ def iterator_over_state_space(cardinal_list):
     size = reduce(lambda u, v: u * v, cardinal_list)
     for i in range(size):
         yield int_to_nary(i, cardinal_list)
-    
+
 def item_categories_to_transition_matrix(item_categories):
     assert round(total_of_item_category(item_categories), 6) == 1.0
-    
+
     size = size_of_matrix(item_categories)
     cardinal_list = list(map(lambda z: z.number + 1, item_categories))
     return_matrix = sp.sparse.lil_matrix((size, size))
-    
+
     for state in iterator_over_state_space(cardinal_list):
         num_state = nary_to_int(state)
         for obtained_item in range(len(state)):
             probability_of_category = to_prob(item_categories[obtained_item])
-            
+
             head = state[:obtained_item]
             body = state[obtained_item]
             foot = state[obtained_item+1:]
             new_item_state = head + [succ_nary(body)] + foot
             new_item_probability = probability_of_category * prob_of_new_item(body)
             return_matrix[nary_to_int(new_item_state), num_state] += new_item_probability
-            
             duplicated_item_probability = probability_of_category * prob_of_duplication(body)
             return_matrix[num_state, num_state] += duplicated_item_probability
-    
     return return_matrix.tocsr()
 
 def create_q_matrix(transition_matrix):
-    return (p[:-1, :-1], p[:-1, -1])
+    return (transition_matrix[:-1, :-1], transition_matrix[:-1, -1])
 
 def I_Q_inv_e(q, solver):
     size = q.shape[0]
@@ -177,7 +173,7 @@ def exact_expectation(transition_matrix, solver=np.linalg.solve):
     return I_Q_inv_e(q_matrix, solver)[0]
 
 def create_categories(item_category_seed):
-    item_categories = list(map(lambda z : ItemCategory(z[0], z[1]), item_category_seed))
+    item_categories = list(map(lambda z: ItemCategory(z[0], z[1]), item_category_seed))
     assert round(total_of_item_category(item_categories), 6) == 1.0
     return item_categories
 
@@ -195,3 +191,4 @@ def calculate_exact_expectation(item_categories):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    print("All tests passed!")
