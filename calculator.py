@@ -9,10 +9,14 @@ def debug(obj):
     print(str(obj), file=sys.stdout)
 
 def single_lottery(json):
+    """
+    >>> single_lottery([{'number':1, 'probability': 2}] + [{'number':2, 'probability': 4}] + [{'number':9, 'probability': 10}])
+    66.934832989347782
+    """
     item_categories = json_to_categories(json)
-    debug(item_categories)
+    if size_of_state_space(item_categories) > 36000:
+        raise ValueError("The size of the state space is too large!")
     item_categories = normalize_category(item_categories)
-    debug(item_categories)
     return calculate_exact_expectation(item_categories)
 
 Nary = typing.NamedTuple('Nary', (('number', int), ('cardinal', int)))
@@ -81,7 +85,18 @@ def succ_nary(nary):
 ItemCategory = typing.NamedTuple('ItemCategory', (('number', int), ('probability', float)))
 
 def to_prob(item_category):
+    """
+    >>> to_prob(ItemCategory(5, 0.2))
+    1.0
+    """
     return item_category.number * item_category.probability
+
+def size_of_state_space(item_categories):
+    """
+    >>> size_of_state_space(map(lambda z: ItemCategory(z[0], z[1]), [(3, 0.2), (4, 0.1)]))
+    20
+    """
+    return reduce(lambda acc, ic: acc * (ic.number + 1), item_categories, 1)
 
 def total_of_item_category(item_categories):
     """
@@ -91,10 +106,17 @@ def total_of_item_category(item_categories):
     return sum(map(to_prob, item_categories))
 
 def json_to_categories(json):
+    """
+    >>> str(json_to_categories([{'number': 5, 'probability' : 0.2}]))
+    '[ItemCategory(number=5, probability=0.2)]'
+    """
     return list(map(lambda z: ItemCategory(int(z['number']), float(z['probability'])), json))
 
 def normalize_category(item_categories):
-    debug(item_categories)
+    """
+    >>> total_of_item_category(normalize_category(json_to_categories([{'number': 5, 'probability' : 0.2}] * 2)))
+    1.0
+    """
     total = total_of_item_category(item_categories)
     return list(map(lambda z: ItemCategory(z.number, z.probability/total), item_categories))
 
